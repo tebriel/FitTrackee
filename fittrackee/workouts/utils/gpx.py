@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
+from xml.etree import ElementTree
 
 import gpxpy.gpx
 
@@ -7,6 +8,8 @@ from ..exceptions import InvalidGPXException, WorkoutGPXException
 from .weather import WeatherService
 
 weather_service = WeatherService()
+
+GARMIN_EXTENSION = '{http://www.garmin.com/xmlschemas/TrackPointExtension/v1}'
 
 
 def open_gpx_file(gpx_file: str) -> Optional[gpxpy.gpx.GPX]:
@@ -208,6 +211,24 @@ def get_gpx_segments(
     return segments
 
 
+def parse_extensions(point: gpxpy.gpx.GPXTrackPoint) -> dict[str, float]:
+    result: dict[str, float] = {}
+    for extension in point.extensions:
+        if extension.tag == f"{GARMIN_EXTENSION}TrackPointExtension":
+            parse_garmin_trackpoint(extension, result)
+    return result
+
+
+def parse_garmin_trackpoint(
+    items: ElementTree.Element, result: dict[str, float]
+) -> None:
+    stats: list[str] = ['hr', 'cad', 'atemp', 'wtemp', 'depth']
+    for item in items:
+        key = item.tag.replace(GARMIN_EXTENSION, '')
+        if key in stats:
+            result[key] = float(item.text or '')
+
+
 def get_chart_data(
     gpx_file: str, segment_id: Optional[int] = None
 ) -> Optional[List]:
@@ -230,6 +251,7 @@ def get_chart_data(
         for point_idx, point in enumerate(segment.points):
             if segment_idx == 0 and point_idx == 0:
                 first_point = point
+            ext_data = parse_extensions(point)
             distance = (
                 point.distance_3d(previous_point)
                 if (
@@ -262,6 +284,17 @@ def get_chart_data(
             }
             if point.elevation:
                 data['elevation'] = round(point.elevation, 1)
+            # TODO(tebriel) this is ugly, find a better way
+            if 'hr' in ext_data:
+                data['heart_rate'] = ext_data['hr']
+            if 'cad' in ext_data:
+                data['cadence'] = ext_data['cad']
+            if 'atemp' in ext_data:
+                data['ambient_temp'] = ext_data['atemp']
+            if 'wtemp' in ext_data:
+                data['weather_temp'] = ext_data['wtemp']
+            if 'depth' in ext_data:
+                data['depth'] = ext_data['depth']
             chart_data.append(data)
             previous_point = point
             previous_distance = distance
