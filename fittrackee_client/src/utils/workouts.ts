@@ -34,6 +34,14 @@ export const getDatasets = (
       data: [],
       yAxisID: 'ySpeed',
     },
+    heartRate: {
+      label: t('workouts.HEART_RATE'),
+      backgroundColor: ['transparent'],
+      borderColor: [useDarkMode ? '#5f5c97' : '#8884d8'],
+      borderWidth: 2,
+      data: [],
+      yAxisID: 'yHeartRate',
+    },
     elevation: {
       label: t('workouts.ELEVATION'),
       backgroundColor: [useDarkMode ? '#303030' : '#e5e5e5'],
@@ -60,6 +68,10 @@ export const getDatasets = (
       datasets.elevation.data.push(
         convertStatsDistance('m', data.elevation, useImperialUnits)
       )
+    }
+    const coord = { latitude: data.latitude, longitude: data.longitude }
+    if (data.heart_rate !== undefined) {
+      datasets.heartRate.data.push(data.heart_rate)
     }
     coordinates.push({ latitude: data.latitude, longitude: data.longitude })
   })

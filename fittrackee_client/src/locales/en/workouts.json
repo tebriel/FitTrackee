@@ -20,6 +20,8 @@
   "EXIT_FULLSCREEN": "Exit Fullscreen",
   "FROM": "from",
   "GPX_FILE": ".gpx file",
+  "HEART_RATE": "heart rate",
+  "HEART_RATE_CHART": "heart rate chart",
   "HIDE_FILTERS": "hide filters",
   "INVALID_ASCENT_OR_DESCENT": "Both elevation values must be provided and be greater than or equal to 0.",
   "INVALID_DISTANCE": "The distance must be greater than 0",

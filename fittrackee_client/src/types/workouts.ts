@@ -168,6 +168,7 @@ export interface IWorkoutApiChartData {
   longitude: number
   speed: number
   time: string
+  heartRate?: number
 }
 
 export interface IWorkoutData {
@@ -177,13 +178,13 @@ export interface IWorkoutData {
   chartData: IWorkoutApiChartData[]
 }
 
-export type TWorkoutDatasetKeys = 'speed' | 'elevation'
+export type TWorkoutDatasetKeys = 'speed' | 'elevation' | 'heartRate'
 
 export type TWorkoutDatasets = {
   [key in TWorkoutDatasetKeys]: IChartDataset
 }
 
-export type TCoordinatesKeys = 'latitude' | 'longitude'
+export type TCoordinatesKeys = 'latitude' | 'longitude' | 'heartRate'
 
 export type TCoordinates = {
   [key in TCoordinatesKeys]: number | null

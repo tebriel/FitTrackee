@@ -52,6 +52,22 @@
       </template>
     </Card>
   </div>
+  <div id="heart-rate-chart">
+    <Card>
+      <template #title>{{ $t('workouts.HEART_RATE') }} </template>
+      <template #content>
+        <div id="chart-legend-hr" />
+        <div class="line-chart">
+          <Line
+            :data="hrChartData"
+            :options="hrOptions"
+            @mouseleave="emitEmptyCoordinates"
+            :aria-label="$t('workouts.HEART_RATE_CHART')"
+          />
+        </div>
+      </template>
+    </Card>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -119,6 +135,13 @@
       ])
     ),
   }))
+  const hrChartData: ComputedRef<ChartData<'line'>> = computed(() => ({
+    datasets: JSON.parse(
+      JSON.stringify([
+        datasets.value.datasets.heartRate,
+      ])
+    ),
+  }))
   const coordinates: ComputedRef<TCoordinates[]> = computed(
     () => datasets.value.coordinates
   )
@@ -131,6 +154,76 @@
     color: darkTheme.value
       ? chartsColors.darkMode.text
       : chartsColors.ligthMode.text,
+  }))
+
+  const hrOptions = computed<ChartOptions<'line'>>(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    layout: {
+      padding: {
+        top: 22,
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          drawOnChartArea: false,
+          ...lineColors.value,
+        },
+        border: {
+          ...lineColors.value,
+        },
+        ticks: {
+          count: 10,
+          ...textColors.value,
+        },
+        type: 'linear',
+        bounds: 'data',
+        title: {
+          display: true,
+          text: t('workouts.HEART_RATE'),
+          ...textColors.value,
+        },
+      },
+      y: {
+        grid: {
+          drawOnChartArea: false,
+          ...lineColors.value,
+        },
+        border: {
+          ...lineColors.value,
+        },
+        position: 'left',
+        title: {
+          display: true,
+          text: 'bpm',
+          ...textColors.value,
+        },
+        ticks: {
+          ...textColors.value,
+        },
+      },
+    },
+    elements: {
+      point: {
+        pointStyle: 'circle',
+        pointRadius: 0,
+      },
+    },
+    legend: {
+      display: true,
+    },
+    plugins: {
+      legend: {
+        labels: {
+          generateLabels: false,
+        },
+      },
+      htmlLegend: {
+        containerID: 'chart-legend-hr',
+      },
+    },
   }))
 
   const options = computed<ChartOptions<'line'>>(() => ({
@@ -331,6 +424,8 @@
               }
             }
           }
+        }
+        #chart-legend-hr {
         }
         .line-chart {
           min-height: 400px;

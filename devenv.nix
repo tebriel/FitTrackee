@@ -8,9 +8,6 @@
   packages = [ pkgs.git ];
 
   # https://devenv.sh/languages/
-  languages.typescript = {
-    enable = true;
-  };
   languages.python = {
     enable = true;
     manylinux.enable = false;
@@ -30,18 +27,28 @@
 
   # https://devenv.sh/processes/
   # processes.cargo-watch.exec = "cargo-watch";
+  processes.fittrackee.exec = "make serve-python";
 
   # https://devenv.sh/services/
   services.postgres = {
     enable = true;
+    createDatabase = false;
     package = pkgs.postgresql_16;
     initialDatabases = [{
-      name = "fittrackee";
+      name = "postgres";
+      user = "postgres";
     }];
     port = 5433;
+    initialScript = ''
+      CREATE USER postgres SUPERUSER;
+    '';
+    hbaConf = ''
+      local all all   trust
+    '';
   };
 
   services.redis = {
+    enable = true;
     port = 6391;
   };
 
@@ -81,7 +88,7 @@
   # pre-commit.hooks.bandit = {
   #   enable = true;
   #   name = "bandit";
-  #   entry = "bandit -c pyproject.toml -r";
+  #   entry = "make bandit";
   #   files = ".";
   #   language = "python";
   # };
